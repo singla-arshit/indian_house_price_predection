@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>House Price Prediction</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Select2 for searchable dropdowns -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        :root {
+            --secondary-color: #805932;
+            --secondary-light: #a07a56;
+            --secondary-dark: #594025;
+        }
+        
+        .form-container {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-container:hover {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            transform: translateY(-2px);
+        }
+        
+        .select2-container--default .select2-selection--single {
+            height: 46px;
+            padding-top: 8px;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.375rem;
+            transition: all 0.2s ease;
+        }
+        
+        .select2-container--default .select2-selection--single:hover {
+            border-color: var(--secondary-light);
+        }
+        
+        .select2-container--default .select2-selection--single:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 0.25rem rgba(128, 89, 50, 0.25);
+        }
+        
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 44px;
+        }
+        
+        .btn-primary {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-dark);
+            border-color: var(--secondary-dark);
+            transform: translateY(-1px);
+        }
+        
+        .btn-primary:focus {
+            background-color: var(--secondary-dark);
+            border-color: var(--secondary-dark);
+            box-shadow: 0 0 0 0.25rem rgba(128, 89, 50, 0.5);
+        }
+        
+        .form-control, .form-select {
+            transition: all 0.2s ease;
+            border: 1px solid #e2e8f0;
+            padding: 0.5rem 0.75rem;
+            height: 46px;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 0.25rem rgba(128, 89, 50, 0.25);
+        }
+        
+        .form-label {
+            font-weight: 500;
+            color: #4a5568;
+            margin-bottom: 0.5rem;
+        }
+        
+        .invalid-feedback {
+            color: #e53e3e;
+            font-size: 0.875rem;
+        }
+        
+        .is-invalid {
+            border-color: #e53e3e;
+        }
+        
+        .is-invalid:focus {
+            box-shadow: 0 0 0 0.25rem rgba(229, 62, 62, 0.25);
+        }
+        
+        .result-container {
+            transition: all 0.5s ease;
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            border-left: 4px solid var(--secondary-color);
+        }
+        
+        .feature-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
+            color: var(--secondary-color);
+        }
+        
+        .header-decoration {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .header-decoration:after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background-color: var(--secondary-color);
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="container py-12">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="text-center mb-10">
+                    <h1 class="text-4xl font-bold text-gray-800 header-decoration mb-4">House Price Prediction</h1>
+                    <p class="text-gray-600 text-lg max-w-2xl mx-auto">Get an accurate estimate of your property's value based on comprehensive market analysis and property features.</p>
+                </div>
+
+                <div class="bg-white rounded-xl form-container p-8 mb-8">
+                    <form action="/predict" method="POST" class="needs-validation" novalidate>
+                        <div class="row g-4">
+                            <!-- Area -->
+                            <div class="col-md-6">
+                                <label for="area" class="form-label">
+                                    <svg class="feature-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    Area (in Sq.Ft)
+                                </label>
+                                <input type="number" class="form-control" id="area" name="area" step="0.1" placeholder="Enter property area" required>
+                                <div class="invalid-feedback">
+                                    Please provide a valid area.
+                                </div>
+                            </div>
+
+                            <!-- Bedrooms -->
+                            <div class="col-md-6">
+                                <label for="bedrooms" class="form-label">
+                                    <svg class="feature-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                    </svg>
+                                    No. of Bedrooms
+                                </label>
+                                <input type="number" class="form-control" id="bedrooms" name="bedrooms" step="0.1" placeholder="Enter number of bedrooms" required>
+                                <div class="invalid-feedback">
+                                    Please provide number of bedrooms.
+                                </div>
+                            </div>
+
+                            <!-- Boolean Features -->
+                            <div class="col-md-4">
+                                <label for="resale" class="form-label">
+                                    <svg class="feature-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                    </svg>
+                                    Resale
+                                </label>
+                                <select class="form-select" id="resale" name="resale" required>
+                                    <option value="" selected disabled>Select option</option>
+                                    <option value="1">Yes</option>
+                                    <option value="0">No</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please select an option.
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="swimmingpool" class="form-label">
+                                    <svg class="feature-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    Swimming Pool
+                                </label>
+                                <select class="form-select" id="swimmingpool" name="swimmingpool" required>
+                                    <option value="" selected disabled>Select option</option>
+                                    <option value="1">Yes</option>
+                                    <option value="0">No</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please select an option.
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="carparking" class="form-label">
+                                    <svg class="feature-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
+                                    </svg>
+                                    Car Parking
+                                </label>
+                                <select class="form-select" id="carparking" name="carparking" required>
+                                    <option value="" selected disabled>Select option</option>
+                                    <option value="1">Yes</option>
+                                    <option value="0">No</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please select an option.
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="school" class="form-label">
+                                    <svg class="feature-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                    </svg>
+                                    School Nearby
+                                </label>
+                                <select class="form-select" id="school" name="school" required>
+                                    <option value="" selected disabled>Select option</option>
+                                    <option value="1">Yes</option>
+                                    <option value="0">No</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please select an option.
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="lift" class="form-label">
+                                    <svg class="feature-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7l4-4m0 0l4 4m-4-4v18m-3-3h6m-6 0H7m6 0h3" />
+                                    </svg>
+                                    Lift Available
+                                </label>
+                                <select class="form-select" id="lift" name="lift" required>
+                                    <option value="" selected disabled>Select option</option>
+                                    <option value="1">Yes</option>
+                                    <option value="0">No</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please select an option.
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="maintenance" class="form-label">
+                                    <svg class="feature-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                    </svg>
+                                    Maintenance Staff
+                                </label>
+                                <select class="form-select" id="maintenance" name="maintenance" required>
+                                    <option value="" selected disabled>Select option</option>
+                                    <option value="1">Yes</option>
+                                    <option value="0">No</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please select an option.
+                                </div>
+                            </div>
+
+                            <!-- City with searchable dropdown -->
+                            <div class="col-md-6">
+                                <label for="city" class="form-label">
+                                    <svg class="feature-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                    City
+                                </label>
+                                <select class="form-select select2" id="city" name="city" required>
+                                    <option value="" selected disabled>Select city</option>
+                                    {% for city in cities %}
+                                        <option value="{{ city }}">{{ city }}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please select a city.
+                                </div>
+                            </div>
+
+                            <!-- Location with searchable dropdown -->
+                            <div class="col-md-6">
+                                <label for="location" class="form-label">
+                                    <svg class="feature-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                                    </svg>
+                                    Location
+                                </label>
+                                <select class="form-select select2" id="location" name="location" required>
+                                    <option value="" selected disabled>Select location</option>
+                                    {% for location in locations %}
+                                        <option value="{{ location }}">{{ location }}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please select a location.
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="col-12 mt-6">
+                                <button class="btn btn-primary w-full py-3 text-lg font-semibold rounded-lg" type="submit">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    Predict Price
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                {% if prediction_text %}
+                <div class="result-container bg-white rounded-xl p-6 text-center animate-fade-in">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-3">Prediction Result</h3>
+                    <p class="text-2xl font-bold text-secondary mb-4">{{ prediction_text }}</p>
+                    <p class="text-gray-600">This estimate is based on current market trends and your property features.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery (required for Select2) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    
+    <script>
+        // Initialize Select2 for searchable dropdowns
+        $(document).ready(function() {
+            $('.select2').select2({
+                placeholder: "Select an option",
+                allowClear: true,
+                width: '100%'
+            });
+            
+            // Add hover effects to form controls
+            $('.form-control, .form-select').hover(
+                function() {
+                    $(this).css('border-color', '#805932');
+                },
+                function() {
+                    if (!$(this).is(':focus') && !$(this).hasClass('is-invalid')) {
+                        $(this).css('border-color', '#e2e8f0');
+                    }
+                }
+            );
+            
+            // Form validation
+            (function () {
+                'use strict'
+                
+                var forms = document.querySelectorAll('.needs-validation')
+                
+                Array.prototype.slice.call(forms)
+                    .forEach(function (form) {
+                        form.addEventListener('submit', function (event) {
+                            if (!form.checkValidity()) {
+                                event.preventDefault()
+                                event.stopPropagation()
+                            }
+                            
+                            form.classList.add('was-validated')
+                        }, false)
+                    })
+            })()
+        });
+    </script>
+</body>
+</html>
