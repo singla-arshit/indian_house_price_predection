@@ -2,8 +2,18 @@ from flask import Flask, render_template, request, jsonify
 import joblib
 import json
 import numpy as np
+from flask_cors import CORS  # Import the CORS package
 
 app = Flask(__name__)
+# Enable CORS for all routes
+CORS(app)
+
+@app.after_request
+def add_cors_headers(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+    return response
 
 # Load model and mappings
 model = joblib.load('xgb_model.pkl')
@@ -47,9 +57,14 @@ def predict():
                               cities=city_mapping.keys(), 
                               locations=location_mapping.keys())
 
-#  API Endpoint
-@app.route('/predict_api', methods=['POST'])
+# API Endpoint with CORS support
+@app.route('/predict_api', methods=['POST', 'OPTIONS'])
 def predict_api():
+    # Handle OPTIONS request for CORS preflight
+    if request.method == 'OPTIONS':
+        response = app.make_default_options_response()
+        return response
+        
     data = request.get_json()
     try:
         area = float(data['area'])
@@ -77,3 +92,4 @@ def predict_api():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
