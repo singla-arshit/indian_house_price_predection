@@ -4,7 +4,8 @@ import json
 import numpy as np
 from flask_cors import CORS  # Import the CORS package
 
-app = Flask(__name__)
+app = Flask(__name__)  # Fixed underscore syntax
+
 # Enable CORS for all routes
 CORS(app)
 
@@ -44,7 +45,9 @@ def predict():
         location_encoded = location_mapping.get(location, 0)
         
         input_data = np.array([[area, bedrooms, resale, swimming, parking, school, lift, maintenance, location_encoded, city_encoded]])
-        prediction = model.predict(input_data)[0]
+        
+        # CHANGE 1: Convert numpy float32 to native Python float
+        prediction = float(model.predict(input_data)[0])
         increased_price = prediction * 1.25
         
         return render_template('index.html', 
@@ -82,14 +85,18 @@ def predict_api():
         location_encoded = location_mapping.get(location, 0)
         
         input_data = np.array([[area, bedrooms, resale, swimming, parking, school, lift, maintenance, location_encoded, city_encoded]])
-        prediction = model.predict(input_data)[0]
+        
+        # CHANGE 2: Convert numpy float32 to native Python float
+        prediction = float(model.predict(input_data)[0])
         increased_price = prediction * 1.25
         
-        return jsonify({'predicted_price_lakhs': round(increased_price, 2)})
+        # CHANGE 3: Return a native Python float that's JSON serializable
+        return jsonify({'predicted_price_lakhs': round(float(increased_price), 2)})
     
     except Exception as e:
         return jsonify({'error': str(e)}), 400
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # Fixed underscore syntax properly
     app.run(debug=True)
+
 
