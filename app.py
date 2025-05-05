@@ -3,6 +3,7 @@ import joblib
 import json
 import numpy as np
 from flask_cors import CORS  # Import the CORS package
+import xgboost as xgb
 
 app = Flask(__name__)  # Fixed underscore syntax
 
@@ -17,7 +18,8 @@ def add_cors_headers(response):
     return response
 
 # Load model and mappings
-model = joblib.load('xgb_model.pkl')
+model = xgb.XGBRegressor()
+model.load_model("xgb_model.json")
 with open('city_mapping.json', 'r') as f:
     city_mapping = json.load(f)
 with open('location_mapping.json', 'r') as f:
