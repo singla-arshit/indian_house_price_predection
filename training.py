@@ -67,7 +67,7 @@ def main():
 
     # Save model
     model_path = 'xgb_model.pkl'
-    joblib.dump(xgb_model, model_path)
+    xgb_model.save_model("xgb_model.json")
     print("Model saved to:", model_path)
 
 if __name__ == "__main__":
